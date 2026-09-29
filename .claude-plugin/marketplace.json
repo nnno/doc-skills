@@ -1,0 +1,15 @@
+{
+  "name": "doc-skills",
+  "description": "文書づくりのための agent skill 集",
+  "owner": {
+    "name": "nnno"
+  },
+  "plugins": [
+    {
+      "name": "doc-skills",
+      "source": "./",
+      "description": "文書に載せる説明図を手座標の SVG で描く svg-figure などの skill",
+      "skills": ["./skills/svg-figure"]
+    }
+  ]
+}
