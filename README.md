@@ -7,7 +7,7 @@
 | skill | 内容 |
 |---|---|
 | `svg-figure` | 文書に載せる説明図を `figures/<name>.svg` に手座標の SVG で描き、必要なら PNG も書き出す。md・html・docx のどこからでも同じ図を参照できる。「/svg-figure」「svg-figure を使って」と明示したときだけ動く |
-| `html-report` | 人が読んで判断する文書を、単一 HTML の解説ページにする。原本の Markdown は残し、HTML は派生物として扱う。「/html-report」「html-report を使って」と明示したときだけ動く |
+| `html-report` | 人が読んで判断する文書を、図と操作が主の単一 HTML にする。読まずに、触って、選んで判断できる形にし、原本の Markdown は残して HTML は派生物として扱う。「/html-report」「html-report を使って」と明示したときだけ動く |
 
 ## install
 
