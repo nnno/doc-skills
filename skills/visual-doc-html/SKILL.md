@@ -1,11 +1,15 @@
 ---
 name: visual-doc-html
-description: Explicit-only skill. 人が読んで判断する文書（提案・設計の選択肢・調査結果など）を、図と操作が主の単一 HTML ページにする。読ませずに、触って、選んで判断できる形にする。原本の Markdown は残し、HTML は派生物として扱う。ユーザーが「/visual-doc-html」「visual-doc-html を使って」のように明示的に指定した時のみ使用する。「HTML にして」「見やすくして」と言われただけでは自動起動しない。記録の原本、装飾だけの静的資料、数値ダッシュボード、文章中心のページには使わない。
+description: Explicit-only skill. 人が読んで判断する文書（提案・設計の選択肢・調査結果など）を、図と操作が主の単一 HTML ページにする。読ませずに、触って、選んで判断できる形にする。原本の Markdown は残し、HTML は派生物として扱う。ユーザーが「/visual-doc-html」「visual-doc-html を使って」のように明示的に指定した時のみ使用する。「HTML にして」「見やすくして」と言われただけでは自動起動しない。記録の原本、装飾だけの静的資料、数値ダッシュボード、文章中心のページ、HTML 以外の場所で読まれる文書（共有設計書など）には使わない。
 ---
 
 # visual-doc-html
 
-人が判断する文書を、**読まずに、触って、選んで**決められる単一 HTML にする。主役は図と操作で、文章は図の注釈。文章は、図にも操作にもならない節だけに使う。
+AI が作った仕様・案を、決める本人が読み、答えを AI に返す文書を、**読まずに、触って、選んで**決められる単一 HTML にする。主役は図と操作で、文章は図の注釈。文章は、図にも操作にもならない節だけに使う。
+
+## 使う文書の条件
+
+「AI が作った仕様・案を、決める本人が読み、答えを AI に返す」文書にだけ使う。HTML 以外の場所（共有設計書、wiki、PR など）で読まれる文書には使わない。その場合は `svg-figure` の図 + Markdown で書く（装飾が要るなら `html-doc`）と案内して終える。
 
 ## 縛り（先に置く）
 
@@ -13,21 +17,38 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 - 図と操作が主。文章は注釈。
 - 例示値は **「例」と明示すれば**、原本に無い具体値を置いてよい。原本に無い**主張・結論・推奨**は足さない。
 
+## 操作にするもの（3 型）
+
+操作にするのはこの 3 型だけ。それ以外は静的な図・表にする。
+
+1. **値と時間で動く規則**: 状態・数量・時間で結果が変わる規則 → 動くモデル（手順 5）
+2. **排他の設計案**: 同時に採れない案 → 切り替わる図（手順 6）
+3. **見て選べる選択肢の問い**: 選択肢を図や画面モックで見比べて選ぶ問い → カード + ラジオ（手順 2）
+
+## 操作にしないもの
+
+- 並んで起きる場合分け（排他でなく同時に成り立つもの）→ 並べた図
+- 数通りで表になる規則 → 表
+- 保存されないチェックボックス（押しても何も残らない操作）
+
 ## 手順
 
 ### 1. 原本から取り出す
 
-問い／選択肢と評価基準／状態・数量・時間の規則／構成要素の関係／推奨と根拠（あれば）／未確認事項。
+問い／選択肢と評価基準／状態・数量・時間の規則／構成要素の関係／推奨と根拠（あれば）／決定済み事項とその根拠／未確認事項。
 
 ### 2. 節ごとに「どの形か」を先に書き出す
 
 | 原本の内容 | 表現 |
 |---|---|
-| 状態・数量・時間の規則 | **動くモデル**（値・操作・ログ） |
-| 選択肢 | **切り替わる図** + 評価表（推奨が原本にあればそれを強調） |
-| 構成要素の関係 | 図 |
+| 値と時間で動く規則（型 1） | **動くモデル**（値・操作・ログ） |
+| 排他の設計案（型 2） | **切り替わる図** + 評価表（推奨が原本にあればそれを強調） |
+| 見て選べる選択肢の問い（型 3） | **選択肢カード**（図や画面モックを各カードに置く）+ ラジオ |
+| 構成要素の関係・上記以外 | 静的な図・表 |
 | どれにも当たらない | 文章（この節だけ） |
 
+- 型 3 は、各選択肢を図や画面モックのカードにして並べ、ラジオで選ばせる。型 2 のように図を差し替えない（全カードを同時に見せる）。
+- 決定済み事項は、根拠とセットで「決定済み」として載せる（問いにしない）。
 - 原本に推奨が無い: 推奨欄は出さず、「原本に推奨の記載なし」と 1 行だけ書く。
 - 移行段階は時間の規則として動くモデルに入れる（段階を進める操作と「次に進む条件」）。失敗モードは失敗イベントとして動くモデルのログに出す。どの形にも当たらない時だけ文章にする。
 
@@ -37,7 +58,7 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 
 ### 4. 図の作り方
 
-図は HTML/CSS の箱（flex/grid、折り返しあり）。矢印は `↓ →` の文字。SVG は使わない。
+図は HTML/CSS の箱（flex/grid、折り返しあり）。矢印は `↓ →` の文字。箱で足りない図は inline SVG を使ってよい（`svg-figure` の規約で描くか、原本の図をそのまま埋め込む）。単一 HTML・外部依存なしは保つので、外部の SVG ファイルは参照しない。
 
 - 箱は `.node`（枠 1.5px、角丸 8）。種類は枠線で区別し、文言も併記する: 新規 = 実線太、既存 = 実線細、無し・廃止 = 点線。
 - 色（`--ok --warn --bad --accent`）は記号（✓ ! ✕）とセットで使う。
@@ -62,7 +83,7 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 
 ### 5. 動くモデルの作り方
 
-状態（例示値を 1 オブジェクト）、操作（時間を進める・イベントのボタン）、`apply(state, event)`、ログ、不変条件の表示、境界ケースへ跳ぶボタン。
+状態（例示値を 1 オブジェクト、モジュール変数）、操作（時間を進める・イベントのボタン）、`apply(ev)`、ログ、不変条件の表示、境界ケースへ跳ぶボタン。
 
 - **不変条件・境界ケースは原本の規則から導けるものだけ。** 導けないものは「例」と明示する。
 - 規則に反する操作はボタンを `disabled` にして理由を表示する。
@@ -72,6 +93,7 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 <output id="st">{"stock":3,"t":0}</output> <!-- 初期値は静的に書く（JS 無しでも読める） -->
 <ol id="log"></ol>
 <button data-ev="tick">時間を進める</button> <button data-ev="ok">成功</button>
+<p id="why"></p> <!-- 無効化した操作の理由 -->
 <script>
 let s = { stock: 3 /* 例 */, t: 0 }, log = [];
 const rules = { tick: s => ({ ...s, t: s.t + 1 }), ok: s => ({ ...s, stock: s.stock - 1 }) };
@@ -82,7 +104,8 @@ function render() {
   st.textContent = JSON.stringify(s);               // 値
   document.getElementById("log").innerHTML = log.map(l => "<li>" + l + "</li>").join("");
   // 不変条件（例: 在庫 = 総数 − 確定 − 仮押さえ）をここで表示する
-  document.querySelector('[data-ev=ok]').disabled = s.stock <= 0; // 違反する操作は無効化（理由も表示する）
+  document.querySelector('[data-ev=ok]').disabled = s.stock <= 0; // 違反する操作は無効化し、理由を出す
+  why.textContent = s.stock <= 0 ? "在庫が 0 のため「成功」は押せない" : "";
 }
 document.querySelectorAll("[data-ev]").forEach(b => b.onclick = () => apply(b.dataset.ev));
 render();
@@ -103,8 +126,8 @@ const opts = { A: { api: "既存", queue: "新規" }, B: { api: "既存", queue:
 const cls = { 新規: "new", 変更: "chg", 既存: "", 無し: "none" };
 function draw() {
   const v = document.querySelector("[name=opt]:checked").value;
-  fig.innerHTML = Object.entries(opts[v]).map(([k, st]) =>
-    `<span class="node ${cls[st]}">${k}（${st}）</span>`).join(" → ");
+  fig.innerHTML = Object.entries(opts[v]).map(([k, kind]) =>
+    `<span class="node ${cls[kind]}">${k}（${kind}）</span>`).join(" → ");
   document.querySelectorAll("[data-col]").forEach(c => c.classList.toggle("on", c.dataset.col === v));
 }
 document.querySelectorAll("[name=opt]").forEach(r => r.onchange = draw);
@@ -114,13 +137,23 @@ draw();
 
 ### 7. 答えを残す
 
-問いごとにラジオ + 要望 `<textarea>`。**「テキストをコピー」ボタンは常に置く**（Markdown を生成）。
+問いごとにラジオ + 要望 `<textarea>`。**答えが AI に戻る問いがあるときだけ**「テキストをコピー」ボタンを置く（Markdown を生成）。問いが無い文書には置かない。
+
+- 原本に推奨が無い問い（型 3）は、ラジオに `checked` を付けない。この規則は型 3 の推奨なしの問いだけに適用する。型 2 の切り替え図（手順 6）は初期図を静的に置くので、コード例の A の `checked` は残す。
+
+コピー専用の readonly 出力欄（要望欄とは別）に書き、結果は `role="status"` に出す。
+
+```html
+<textarea id="out" readonly rows="6"></textarea> <!-- 表示したまま置く（hidden だと select が効かない） -->
+<p id="copy-status" role="status"></p>
+```
 
 ```js
-async function copyText(text, area) {
-  try { await navigator.clipboard.writeText(text); return; } catch {}
-  area.value = text; area.select(); // textarea は表示したまま置く（hidden だと select が効かない）
-  if (!document.execCommand("copy")) area.focus(); // 失敗時は選択済みのまま手動コピー
+async function copyText(text, out) {
+  out.value = text;
+  try { await navigator.clipboard.writeText(text); copyStatus.textContent = "コピーした"; return; } catch {}
+  out.select(); // 失敗時は選択済みのまま手動コピー
+  copyStatus.textContent = document.execCommand("copy") ? "コピーした" : "コピーできなかった。選択した文字を手動でコピーする";
 }
 ```
 
@@ -138,11 +171,12 @@ Claude Code で Artifact 公開が使えるなら公開してよい。`artifact-
 
 - Playwright が使えれば viewport 幅 400 と `colorScheme: 'dark'` を直接指定して見る。
 - 使えない headless Chrome（約 500px 未満のウィンドウを作れない）は、幅 400px の `<iframe srcdoc>` 内で `documentElement` の `scrollWidth <= clientWidth` を見る。
-- 操作を一通り触る（モデルが動く、ラジオで図が変わる、コピーが生成される）。
-- 原本照合: 例示値以外の主張が原本にある。
+- 3 型に当たる操作だけを触る（モデルが動く、ラジオで図が変わる、型 3 のラジオで選べる）。問いがあるときだけ、コピーが生成されることも見る。
+- 原本照合: 原本の全節が HTML のどこかにあり、例示値以外の主張が原本にある。
 
 ## やらないこと
 
+- 操作にしないもの（並んだ場合分け・表で足りる規則・保存されないチェックボックス）を操作にする
 - 原本の代替にする（HTML だけを残して Markdown を捨てる）
 - 原本に無い主張・結論・推奨を足す
 - 装飾だけの部品
