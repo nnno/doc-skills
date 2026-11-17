@@ -145,7 +145,7 @@ draw();
 
 ```html
 <textarea id="out" readonly rows="6"></textarea> <!-- 表示したまま置く（hidden だと select が効かない） -->
-<p id="copy-status" role="status"></p>
+<p id="copyStatus" role="status"></p> <!-- id をハイフン無しにすると、同名のグローバル変数で参照できる -->
 ```
 
 ```js
