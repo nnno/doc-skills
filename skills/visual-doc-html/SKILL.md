@@ -48,7 +48,7 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
   @media (prefers-color-scheme: dark) {
     :root { --bg:#111113; --fg:#edeef0; --muted:#b0b4ba; --line:#4a4f52; --accent:#70b8ff; --ok:#3dd68c; --warn:#ffa057; --bad:#ff9592; }
   }
-  body { background:var(--bg); color:var(--fg); max-width:48rem; margin:0 auto; padding:0 16px; }
+  body { background:var(--bg); color:var(--fg); margin:0; padding:0 16px; }
   .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .node { border:1.5px solid var(--line); border-radius:8px; padding:6px 10px; }
   .node.new { border:3px solid var(--fg); }
