@@ -25,7 +25,7 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 |---|---|
 | 状態・数量・時間の規則 | **動くモデル**（値・操作・ログ） |
 | 選択肢 | **切り替わる図** + 評価表（推奨が原本にあればそれを強調） |
-| 構成要素の関係（4 つ以上） | 図 |
+| 構成要素の関係 | 図 |
 | どれにも当たらない | 文章（この節だけ） |
 
 - 原本に推奨が無い: 推奨欄は出さず、「原本に推奨の記載なし」と 1 行だけ書く。
@@ -52,8 +52,11 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
   .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .node { border:1.5px solid var(--line); border-radius:8px; padding:6px 10px; }
   .node.new { border:3px solid var(--fg); }
+  .node.chg { border:1.5px dashed var(--fg); }
   .node.none { border-style:dotted; color:var(--muted); }
   .tbl { overflow-x:auto; }
+  [data-col].on { outline:2px solid var(--accent); }
+  output, li { overflow-wrap:anywhere; }
 </style>
 ```
 
@@ -66,7 +69,8 @@ description: Explicit-only skill. 人が読んで判断する文書（提案・�
 - 例示値（総数・期間など原本に無い値）は画面上で「例」と明示する。
 
 ```html
-<output id="st"></output><ol id="log"></ol>
+<output id="st">{"stock":3,"t":0}</output> <!-- 初期値は静的に書く（JS 無しでも読める） -->
+<ol id="log"></ol>
 <button data-ev="tick">時間を進める</button> <button data-ev="ok">成功</button>
 <script>
 let s = { stock: 3 /* 例 */, t: 0 }, log = [];
@@ -77,7 +81,8 @@ function apply(ev) {
 function render() {
   st.textContent = JSON.stringify(s);               // 値
   document.getElementById("log").innerHTML = log.map(l => "<li>" + l + "</li>").join("");
-  // 不変条件（例: 在庫 = 総数 − 確定 − 仮押さえ）をここで表示し、違反する操作は disabled にする
+  // 不変条件（例: 在庫 = 総数 − 確定 − 仮押さえ）をここで表示する
+  document.querySelector('[data-ev=ok]').disabled = s.stock <= 0; // 違反する操作は無効化（理由も表示する）
 }
 document.querySelectorAll("[data-ev]").forEach(b => b.onclick = () => apply(b.dataset.ev));
 render();
@@ -86,15 +91,16 @@ render();
 
 ### 6. 切り替わる図の作り方
 
-選択肢ごとにノードの状態（新規 / 変更 / 既存 / 無し）をデータで持ち、ラジオで class と文言を入れ替える。評価表の該当列と推奨（あれば）を同じ画面で強調する。
+選択肢ごとにノードの状態（新規 / 変更 / 既存 / 無し）をデータで持ち、ラジオで class と文言を入れ替える。評価表の該当列と推奨（あれば）を同じ画面で強調する。**図・評価表・規則の説明は静的 HTML に置き**（全選択肢の評価表は常に載せる。初期選択の図は直書き）、JS は差し替えと強調の切替だけにする。
 
 ```html
 <label><input type="radio" name="opt" value="A" checked> A</label>
 <label><input type="radio" name="opt" value="B"> B</label>
-<div class="row" id="fig"></div>
+<div class="row" id="fig"><!-- 初期（A）の図を静的に直書き。JS はこの差し替えだけ -->
+  <span class="node">api（既存）</span> → <span class="node new">queue（新規）</span></div>
 <script>
 const opts = { A: { api: "既存", queue: "新規" }, B: { api: "既存", queue: "無し" } };
-const cls = { 新規: "new", 既存: "", 無し: "none" };
+const cls = { 新規: "new", 変更: "chg", 既存: "", 無し: "none" };
 function draw() {
   const v = document.querySelector("[name=opt]:checked").value;
   fig.innerHTML = Object.entries(opts[v]).map(([k, st]) =>
@@ -113,7 +119,7 @@ draw();
 ```js
 async function copyText(text, area) {
   try { await navigator.clipboard.writeText(text); return; } catch {}
-  area.value = text; area.select();
+  area.value = text; area.select(); // textarea は表示したまま置く（hidden だと select が効かない）
   if (!document.execCommand("copy")) area.focus(); // 失敗時は選択済みのまま手動コピー
 }
 ```
@@ -126,7 +132,7 @@ Claude Code で Artifact 公開が使えるなら公開してよい。`artifact-
 - `prefers-color-scheme` でライト / ダーク。色は CSS 変数。
 - 幅 400px で横スクロール無し。表は `.tbl`（`overflow-x:auto`）で包む。
 - 色だけで意味を伝えない（記号か文言を併記）。
-- JS が無効でも本文が読める。
+- JS が無効でも本文が読める。図・評価表・規則の説明・初期値は静的 HTML に置き、JS は操作と差し替えだけにする。
 
 ### 9. 確認
 
